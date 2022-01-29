@@ -1,5 +1,5 @@
 os: linux
-dist: impish
+dist: focal
 group: edge
 language: generic
 git:
@@ -19,6 +19,7 @@ before_install:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 2>/dev/null
   - docker pull fr3akyphantom/droid-builder:latest
 before_script:
+  - snap install git-repo
   - cd $HOME && mkdir twrp
   - cd $HOME/twrp/
   - git config --global user.name juic3b0x
