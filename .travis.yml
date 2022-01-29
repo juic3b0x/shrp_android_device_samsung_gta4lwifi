@@ -51,7 +51,7 @@ deploy:
   on:
     tags: false # Set "true" to deploy only on successful tagged commit builds
     repo: juic3b0x/shrp_android_device_samsung_gta4lwifi # Optional: If you want to deploy on different repository
-    branch: master # Optional: Needs to be exact as the config branch
+    branch: android-11 # Optional: Needs to be exact as the config branch
 branches:
   only:
     - master # Set travis builder branch(es) names
