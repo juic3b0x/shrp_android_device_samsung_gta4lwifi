@@ -12,6 +12,7 @@ addons:
       - aria2
       - zstd
       - xz-utils
+      - repo
 services:
   - docker
 before_install:
@@ -20,6 +21,9 @@ before_install:
 before_script:
   - cd $HOME && mkdir twrp
   - cd $HOME/twrp/
+  - git config --global user.name juic3b0x
+  - git config --global user.email ryn.anthony.garcia@gmail.com
+  - git config --global color.ui false
   - repo init -u git://github.com/SHRP/manifest.git -b v3_11.0
   - repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 script:
