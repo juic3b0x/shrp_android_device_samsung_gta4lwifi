@@ -49,12 +49,12 @@ deploy:
   file_glob: true
   file: $HOME/twrp/*.img
   on:
-    tags: false # Set "true" to deploy only on successful tagged commit builds
-    repo: juic3b0x/shrp_android_device_samsung_gta4lwifi # Optional: If you want to deploy on different repository
-    branch: android-11 # Optional: Needs to be exact as the config branch
+    tags: false
+    repo: juic3b0x/shrp_android_device_samsung_gta4lwifi
+    branch: android-11
 branches:
   only:
-    - master # Set travis builder branch(es) names
+    - android-11 # Set travis builder branch(es) names
   except:
     - /^(?i:untagged)-.*$/
     - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
