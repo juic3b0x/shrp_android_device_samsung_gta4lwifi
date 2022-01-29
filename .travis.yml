@@ -12,7 +12,6 @@ addons:
       - aria2
       - zstd
       - xz-utils
-      - repo
 services:
   - docker
 before_install:
