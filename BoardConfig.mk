@@ -258,6 +258,24 @@ SHRP_INC_IN_REC_EXTERNAL_ADDON_1 := true
 # *not* include it on all devices, so it is safe even with hardware-specific
 # components.
 
+#
+# Copyright (C) 2020 The Android Open Source Project
+# Copyright (C) 2020 The TWRP Open Source Project
+# Copyright (C) 2020 SebaUbuntu's TWRP device tree generator
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 DEVICE_PATH := device/samsung/gta4lwifi
 
 # For building with minimal manifest
@@ -274,7 +292,8 @@ TARGET_2ND_ARCH := arm
 TARGET_2ND_ARCH_VARIANT := armv7-a-neon
 TARGET_2ND_CPU_ABI := armeabi-v7a
 TARGET_2ND_CPU_ABI2 := armeabi
-TARGET_2ND_CPU_VARIANT := cortex-a9
+TARGET_2ND_CPU_VARIANT := generic
+TARGET_BOARD_SUFFIX := _64
 TARGET_USES_64_BIT_BINDER := true
 
 ENABLE_CPUSETS := true
@@ -297,12 +316,6 @@ BOARD_SUPER_PARTITION_GROUPS := samsung_dynamic_partitions
 BOARD_SAMSUNG_DYNAMIC_PARTITIONS_SIZE := 5725224960
 BOARD_SAMSUNG_DYNAMIC_PARTITIONS_PARTITION_LIST := system vendor product odm
 
-# Workaround for error copying vendor files to recovery ramdisk
-BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := ext4
-BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
-TARGET_COPY_OUT_PRODUCT := product
-TARGET_COPY_OUT_VENDOR := vendor
-
 # File systems
 BOARD_FLASH_BLOCK_SIZE := 262144
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 23509056512
@@ -316,51 +329,65 @@ BOARD_USES_PRODUCTIMAGE := true
 BOARD_HAS_LARGE_FILESYSTEM := true
 BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4
 BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
+BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_PERSISTIMAGE_FILE_SYSTEM_TYPE := ext4
 
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
+TARGET_COPY_OUT_VENDOR := vendor
 TARGET_USES_MKE2FS := true
 
 # Kernel
-BOARD_KERNEL_CMDLINE := console=ttyMSM0,115200n8 earlycon=msm_geni_serial,0x4a90000 androidboot.hardware=qcom androidboot.console=ttyMSM0 androidboot.memcg=1 lpm_levels.sleep_disabled=1 video=vfb:640x400,bpp=32,memsize=3072000 msm_rtb.filter=0x237 service_locator.enable=1 swiotlb=2048 loop.max_part=7 firmware_class.path=/vendor/firmware_mnt/image androidboot.selinux=permissive buildvariant=eng
+TARGET_KERNEL_ARCH := arm64
+TARGET_KERNEL_HEADER_ARCH := arm64
 TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image.gz
 TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb.img
+
+BOARD_KERNEL_CMDLINE := \
+    console=ttyMSM0,115200n8 \
+    earlycon=msm_geni_serial,0x4a90000 \
+    androidboot.console=ttyMSM0 \
+    androidboot.hardware=qcom \
+    androidboot.memcg=1 \
+    lpm_levels.sleep_disabled=1 \
+    msm_rtb.filter=0x237 \
+    firmware_class.path=/vendor/firmware_mnt/image \
+    service_locator.enable=1 \
+    swiotlb=2048 \
+    loop.max_part=7 \
+    video=vfb:640x400,bpp=32,memsize=3072000 \
+    androidboot.selinux=permissive \
+    audit=0
+
 BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
 BOARD_INCLUDE_RECOVERY_DTBO := true
 BOARD_BOOTIMG_HEADER_VERSION := 2
+
 BOARD_KERNEL_BASE := 0x00000000
-BOARD_KERNEL_PAGESIZE := 4096
+BOARD_KERNEL_OFFSET := 0x00008000
 BOARD_RAMDISK_OFFSET := 0x02000000
 BOARD_KERNEL_TAGS_OFFSET := 0x01e00000
-BOARD_FLASH_BLOCK_SIZE := 262144 # (BOARD_KERNEL_PAGESIZE * 64)
+BOARD_KERNEL_SECOND_OFFSET := 0x00F00000
+BOARD_KERNEL_PAGESIZE := 4096
+BOARD_DTB_OFFSET := 0x01F00000
+BOARD_MKBOOTIMG_ARGS := --base $(BOARD_KERNEL_BASE) --pagesize $(BOARD_KERNEL_PAGESIZE)
 BOARD_MKBOOTIMG_ARGS += --ramdisk_offset $(BOARD_RAMDISK_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)
-BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
+BOARD_MKBOOTIMG_ARGS += --kernel_offset $(BOARD_KERNEL_OFFSET)
+BOARD_MKBOOTIMG_ARGS += --second_offset $(BOARD_KERNEL_SECOND_OFFSET)
+BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)
+BOARD_MKBOOTIMG_ARGS += --dtb_offset $(BOARD_DTB_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOTIMG_HEADER_VERSION)
-BOARD_KERNEL_IMAGE_NAME := Image.gz
-TARGET_KERNEL_ARCH := arm64
-TARGET_KERNEL_HEADER_ARCH := arm64
-TARGET_KERNEL_SOURCE := kernel/samsung/gta4lwifi
-TARGET_KERNEL_CONFIG := gta4lwifi_defconfig
+BOARD_MKBOOTIMG_ARGS += --board $(TARGET_BOOTLOADER_BOARD_NAME)
+BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 
 # Platform
 TARGET_BOARD_PLATFORM := bengal
 BOARD_USES_QCOM_HARDWARE := true
 TARGET_BOARD_PLATFORM_GPU := qcom-adreno610
 TARGET_USES_HARDWARE_QCOM_BOOTCTRL := true
-QCOM_BOARD_PLATFORMS += bengal
-
-# Extras
 TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
-TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
-
-# AVB
-BOARD_AVB_VBMETA_SYSTEM := system
-BOARD_AVB_VBMETA_SYSTEM_KEY_PATH := external/avb/test/data/testkey_rsa2048.pem
-BOARD_AVB_VBMETA_SYSTEM_ALGORITHM := SHA256_RSA2048
-BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
-BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX_LOCATION := 1
+QCOM_BOARD_PLATFORMS += bengal
 
 # Recovery
 BOARD_HAS_NO_SELECT_BUTTON := true
@@ -371,12 +398,9 @@ TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
 TARGET_RECOVERY_WIPE := $(DEVICE_PATH)/recovery.wipe
 TARGET_RECOVERY_QCOM_RTC_FIX := true
 TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+TARGET_RECOVERY_DEVICE_MODULES += debuggerd
+TARGET_USES_LOGD := true
 TARGET_USE_CUSTOM_LUN_FILE_PATH := /config/usb_gadget/g1/functions/mass_storage.0/lun.%d/file
-TARGET_RECOVERY_DEVICE_MODULES += \
-    libandroidicu \
-    libcap \
-    libion \
-    libxml2
 
 # Encryption
 PLATFORM_VERSION := 20.1.0
@@ -386,41 +410,24 @@ BOARD_USES_METADATA_PARTITION := true
 BOARD_USES_QCOM_FBE_DECRYPTION := true
 PRODUCT_ENFORCE_VINTF_MANIFEST := true
 
-# Crypto
-TW_INCLUDE_CRYPTO := true
-
 # TWRP Configuration
 TW_DEVICE_VERSION := 1
 TW_THEME := portrait_hdpi
 TW_EXTRA_LANGUAGES := true
+TW_INPUT_BLACKLIST := "hbtp_vm"
 TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
 TW_NO_REBOOT_BOOTLOADER := true
 TW_HAS_DOWNLOAD_MODE := true
-TW_SCREEN_BLANK_ON_BOOT := true
-TW_INPUT_BLACKLIST := "hbtp_vm"
 TW_USE_TOOLBOX := true
 TW_USE_NEW_MINADBD := true
 TW_INCLUDE_RESETPROP := true
 TW_INCLUDE_NTFS_3G := true
-TW_INCLUDE_REPACKTOOLS := true
+TW_INCLUDE_CRYPTO := true
+TW_INCLUDE_CRYPTO_FBE := true
 TW_EXCLUDE_DEFAULT_USB_INIT := true
 TW_NO_BIND_SYSTEM := true
 TW_NO_EXFAT := false
 TW_NO_EXFAT_FUSE := false
-TW_NO_LEGACY_PROPS := true
 TW_NO_HAPTICS := true
-TW_OVERRIDE_SYSTEM_PROPS := \
-    "ro.build.date.utc;ro.build.product;ro.build.fingerprint=ro.system.build.fingerprint;ro.build.version.incremental;ro.product.device=ro.product.system.device;ro.product.model=ro.product.system.model;ro.product.name=ro.product.system.name"
-RECOVERY_LIBRARY_SOURCE_FILES += \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libandroidicu.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libcap.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libion.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libxml2.so
-    
-# TWRP Debug Flags
-TARGET_USES_LOGD := true
+TW_NO_LEGACY_PROPS := true
 TWRP_INCLUDE_LOGCAT := true
-TARGET_RECOVERY_DEVICE_MODULES += debuggerd
-RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_EXECUTABLES)/debuggerd
-TARGET_RECOVERY_DEVICE_MODULES += strace
-RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_EXECUTABLES)/strace
